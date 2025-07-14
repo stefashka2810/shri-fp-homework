@@ -1,50 +1,64 @@
-/**
- * @file Домашка по FP ч. 1
- *
- * Основная задача — написать самому, или найти в FP библиотеках функции anyPass/allPass
- * Эти функции/их аналоги есть и в ramda и в lodash
- *
- * allPass — принимает массив функций-предикатов, и возвращает функцию-предикат, которая
- * вернет true для заданного списка аргументов, если каждый из предоставленных предикатов
- * удовлетворяет этим аргументам (возвращает true)
- *
- * anyPass — то же самое, только удовлетворять значению может единственная функция-предикат из массива.
- *
- * Если какие либо функции написаны руками (без использования библиотек) это не является ошибкой
- */
+export const allPass = fns => (...args) => fns.every(fn => fn(...args));
 
-// 1. Красная звезда, зеленый квадрат, все остальные белые.
-export const validateFieldN1 = ({star, square, triangle, circle}) => {
-    if (triangle !== 'white' || circle !== 'white') {
-        return false;
-    }
+const propEq = (prop, value) => obj => obj[prop] === value;
 
-    return star === 'red' && square === 'green';
+const countByColor = ({ star, square, triangle, circle }) =>
+    [star, square, triangle, circle]
+        .reduce((acc, c) => ({ ...acc, [c]: (acc[c] ?? 0) + 1 }), {});
+
+export const validateFieldN1 = allPass([
+    propEq('star',    'red'),
+    propEq('square',  'green'),
+    propEq('circle',  'white'),
+    propEq('triangle','white'),
+]);
+
+
+export const validateFieldN2 = shapes =>
+    countByColor(shapes).green >= 2;
+
+
+export const validateFieldN3 = shapes => {
+    const cnt = countByColor(shapes);
+    return (cnt.red ?? 0) === (cnt.blue ?? 0);
 };
 
-// 2. Как минимум две фигуры зеленые.
-export const validateFieldN2 = () => false;
 
-// 3. Количество красных фигур равно кол-ву синих.
-export const validateFieldN3 = () => false;
+export const validateFieldN4 = allPass([
+    propEq('circle',  'blue'),
+    propEq('star',    'red'),
+    propEq('square',  'orange'),
+]);
 
-// 4. Синий круг, красная звезда, оранжевый квадрат треугольник любого цвета
-export const validateFieldN4 = () => false;
 
-// 5. Три фигуры одного любого цвета кроме белого (четыре фигуры одного цвета – это тоже true).
-export const validateFieldN5 = () => false;
+export const validateFieldN5 = shapes => {
+    const cnt = countByColor(shapes);
+    return Object.entries(cnt)
+        .some(([color, n]) => color !== 'white' && n >= 3);
+};
 
-// 6. Ровно две зеленые фигуры (одна из зелёных – это треугольник), плюс одна красная. Четвёртая оставшаяся любого доступного цвета, но не нарушающая первые два условия
-export const validateFieldN6 = () => false;
 
-// 7. Все фигуры оранжевые.
-export const validateFieldN7 = () => false;
+export const validateFieldN6 = shapes => {
+    const cnt = countByColor(shapes);
+    return (
+        cnt.green === 2 &&
+        shapes.triangle === 'green' &&
+        (cnt.red ?? 0) === 1
+    );
+};
 
-// 8. Не красная и не белая звезда, остальные – любого цвета.
-export const validateFieldN8 = () => false;
 
-// 9. Все фигуры зеленые.
-export const validateFieldN9 = () => false;
+export const validateFieldN7 = shapes =>
+    Object.values(shapes).every(color => color === 'orange');
 
-// 10. Треугольник и квадрат одного цвета (не белого), остальные – любого цвета
-export const validateFieldN10 = () => false;
+
+export const validateFieldN8 = shapes =>
+    shapes.star !== 'red' && shapes.star !== 'white';
+
+
+export const validateFieldN9 = shapes =>
+    Object.values(shapes).every(color => color === 'green');
+
+
+export const validateFieldN10 = shapes =>
+    shapes.triangle === shapes.square && shapes.triangle !== 'white';
